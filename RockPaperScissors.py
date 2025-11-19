@@ -69,12 +69,16 @@ def pause_main_menu():
     input("Press enter to return to the main menu...")
 
 # This Function is Input Validation for the RPS Game
+# Added dictionary to allow shortcuts for players
 def check_valid_rps_input(player_name):
-    valid_rps_input = ("rock", "paper", "scissors")
+    valid_rps_input_shortcut = {"r": "rock", "rock": "rock",
+                                "p": "paper", "paper": "paper",
+                                "s": "scissors", "scissors": "scissors"}
     while True:
-        choice = input(f"\n{player_name}, choose your weapon!\nRock, Paper or Scissors!\n>> ").lower()
-        if choice in valid_rps_input:
-            return choice
+        choice = input(f"\n{player_name}, choose your weapon!\nRock (r), Paper (p) or Scissors (s)!\n>> ").strip().lower()
+        checked_choice = valid_rps_input_shortcut.get(choice, choice)
+        if checked_choice in ("rock", "paper", "scissors"):
+            return checked_choice
         print("\nInvalid input, please enter rock, paper or scissors.")
 
 # This function compares overall scores and declares a winner,
