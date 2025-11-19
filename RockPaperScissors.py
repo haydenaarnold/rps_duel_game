@@ -20,6 +20,15 @@ rps_art = """
                    `==._ .._. /
 """
 
+# ================= Constants & Globals =================
+# This Dictionary defines which moves beat which other moves,
+# used a list initially but this is easier to read and expand
+rps_victor = {
+    'rock': 'scissors',
+    'scissors': 'paper',
+    'paper': 'rock',
+}
+
 # ================= Functions =================
 
 # This function loads settings from the settings.json file.
@@ -82,13 +91,49 @@ def declare_winner(a, b):
     else:
         print(f"\nThe final score is {a} - {b}\nIt's a tie, nobody wins today!\n")
 
-# This Dictionary defines which moves beat which other moves,
-# used a list initially but this is easier to read and expand
-rps_victor = {
-    'rock': 'scissors',
-    'scissors': 'paper',
-    'paper': 'rock',
-}
+# This is the main game function.
+def rps_match_play(best_of, player_one, player_two):
+    # Initial variables used in logic
+    player_one_score = 0
+    player_two_score = 0
+    remaining_games = best_of
+    required_wins = (best_of // 2) + 1
+    # This logic determines if the loop continues, if there are more games because of Best_of setting
+    # OR if it is calculated a player CANNOT reach the required number of wins
+    while (remaining_games > 0
+           and player_one_score < required_wins
+           and player_two_score < required_wins):
+        player_one_input = check_valid_rps_input(player_one)
+        clear_screen()
+        player_two_input = check_valid_rps_input(player_two)
+        # Draw outcome
+        if player_one_input == player_two_input:
+            print("\nDRAW!"
+                  "\nThe DUEL goes on...")
+            pause()
+        # if the inputs are evaluated as one of the winning combinations in rps_victor, Player 1 wins
+        elif rps_victor[player_one_input] == player_two_input:
+            remaining_games -= 1
+            player_one_score += 1
+            print(f"\n{player_one} Wins!"
+                  f"\nThe game count stands at {player_one_score} - {player_two_score}!")
+            pause()
+        # else Player 2 wins
+        else:
+            remaining_games -= 1
+            player_two_score += 1
+            print(f"\n{player_two} Wins!"
+                  f"\nThe game count stands at {player_one_score} - {player_two_score}!")
+            pause()
+    # Ending remarks, including an íf statement to inform the players if one can no longer win
+    if remaining_games > 0:
+        if player_one_score < required_wins:
+            print(f"\n{player_one} can no longer win...")
+        elif player_two_score < required_wins:
+            print(f"\n{player_two} can no longer win...")
+    declare_winner(player_one_score, player_two_score)
+    print(f"The overall count stands at {player_one_wins} - {player_two_wins}!\n")
+    pause_main_menu()
 
 # ================= Main Body =================
 # Initializes settings and some variables
@@ -118,77 +163,9 @@ while True:
         print("Ending Program, see you next time!")
         break
 
-    # Main Game Loop
-    if menu_choice in ("1", "one"):
-        # These variables initialise on match start, they are all used in the following logic
-        player_one_score = 0
-        player_two_score = 0
-        remaining_games = rps_match_bestof
-        required_wins = (rps_match_bestof // 2) + 1
-        # If there are any remaining games, the loop will continue
-        # Note the 'if' Branch for if the Best of count is even or odd, requiring separate logic
-        # This is the even branch
-        if rps_match_bestof % 2 == 0:
-            while remaining_games > 0:
-                player_one_input = check_valid_rps_input(player_one_name)
-                clear_screen()
-                player_two_input = check_valid_rps_input(player_two_name)
-                # Draw outcome
-                if player_one_input == player_two_input:
-                    print("\nDRAW!"
-                          "\nThe DUEL goes on...")
-                    pause()
-                # if the inputs are evaluated as one of the winning combinations in rps_victor, Player 1 wins
-                elif rps_victor[player_one_input] == player_two_input:
-                    remaining_games -= 1
-                    player_one_score += 1
-                    print(f"\n{player_one_name} Wins!"
-                          f"\nThe game count stands at {player_one_score} - {player_two_score}!")
-                    pause()
-                # else Player 2 wins
-                else:
-                    remaining_games -= 1
-                    player_two_score += 1
-                    print(f"\n{player_two_name} Wins!"
-                          f"\nThe game count stands at {player_one_score} - {player_two_score}!")
-                    pause()
-        # Second branch here for odd logic
-        else:
-            while remaining_games > 0:
-                # This logic evaluates if a win is still possible given the remaining rounds and breaks the loop is it isn't
-                if (player_one_score == required_wins or player_two_score == required_wins
-                or player_one_score + remaining_games < required_wins
-                or player_two_score + remaining_games < required_wins):
-                    print(f"\nA victor emerges...")
-                    break
-                # Both Players select their choice here
-                player_one_input = check_valid_rps_input(player_one_name)
-                clear_screen()
-                player_two_input = check_valid_rps_input(player_two_name)
-                # Draw outcome
-                if player_one_input == player_two_input:
-                    print("\nDRAW!"
-                          "\nThe DUEL goes on...")
-                    pause()
-                # if the inputs are evaluated as one of the winning combinations in rps_victor, Player 1 wins
-                elif rps_victor[player_one_input] == player_two_input:
-                    remaining_games -= 1
-                    player_one_score += 1
-                    print(f"\n{player_one_name} Wins!"
-                    f"\nThe game count stands at {player_one_score} - {player_two_score}!")
-                    pause()
-                # else Player 2 wins
-                else:
-                    remaining_games -= 1
-                    player_two_score += 1
-                    print(f"\n{player_two_name} Wins!"
-                    f"\nThe game count stands at {player_one_score} - {player_two_score}!")
-                    pause()
-
-        # Ending remarks
-        declare_winner(player_one_score, player_two_score)
-        print(f"The overall count stands at {player_one_wins} - {player_two_wins}!\n")
-        pause_main_menu()
+    # Main Game Loop, calls the Game Function for easier Readability
+    elif menu_choice in ("1", "one"):
+        rps_match_play(rps_match_bestof, player_one_name, player_two_name)
 
     # Simple log for Match History
     elif menu_choice in ("2", "two"):
